@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: springcloud-study-apollo-8888
+  cloud:
+    stream:
+      bindings:
+        myOutput:
+          destination: login-user
+        myInput: # 通道名，对应代码中的消费监听组
+          destination: login-user # exchange
+          group: logined-member   # 消费组
+
+      rabbit:
+        bindings:
+          myOutput:
+            producer:
+              routing-key-expression: headers.routingKey   # 发送端路由key
+              delayed-exchange: true    # 开启延时队列
+
+          myInput:
+            consumer:
+              binding-routing-key: login.user.succeed   # 消费监听路由表达式
+              delayed-exchange: true    # 开启延时队列
+              auto-bind-dlq: true   # 绑定死信队列
+              republish-to-dlq: true  # 重投到死信队列并带有报错信息
+      kafka:
+        binder:
+          brokers: localhost:9092         #Kafka的消息中间件服务器
+          auto-create-topics: true
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8010/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+server:
+  port: 8889
+app:
+  id: springcloud-study-apollo-8888
+  name: springcloud-study-apollo-8888
+apollo:
+  bootstrap:
+    enabled: true
+  meta: http://localhost:8080
